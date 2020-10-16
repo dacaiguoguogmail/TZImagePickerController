@@ -14,6 +14,8 @@
 #import "TZAssetCell.h"
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
+@import PhotosUI;
+#import <PhotosUI/PHPhotoLibrary+PhotosUISupport.h>
 
 @interface TZImagePickerController () {
     NSTimer *_timer;
@@ -694,7 +696,16 @@
 
 #pragma mark - Public
 
+- (void)moreButtonClick {
+    if (@available(iOS 14, *)) {
+        [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+    } else {
+        // Fallback on earlier versions
+    }
+}
+
 - (void)cancelButtonClick {
+
     if (self.autoDismiss) {
         [self dismissViewControllerAnimated:YES completion:^{
             [self callDelegateMethod];
@@ -738,6 +749,13 @@
     UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:imagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:imagePickerVc action:@selector(cancelButtonClick)];
     [TZCommonTools configBarButtonItem:cancelItem tzImagePickerVc:imagePickerVc];
     self.navigationItem.rightBarButtonItem = cancelItem;
+    if (@available(iOS 14, *)) {
+        UIBarButtonItem *morePhotos = [[UIBarButtonItem alloc] initWithTitle:@"选择更多..." style:UIBarButtonItemStylePlain target:imagePickerVc action:@selector(moreButtonClick)];
+        [TZCommonTools configBarButtonItem:morePhotos tzImagePickerVc:imagePickerVc];
+        self.navigationItem.leftBarButtonItem = morePhotos;
+    } else {
+
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
